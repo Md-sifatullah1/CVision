@@ -4,12 +4,24 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from app.api.schemas import AnalysisResponse, AnalyzeTextRequest
 from app.core.parser import MAX_FILE_SIZE, parse_cv
 from app.services.analysis import AnalysisService
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(
     title="CVision API",
     version="0.1.0",
     description="Reusable CV and job-description analysis service",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+    ],
+    allow_credentials=False,
+    allow_methods=["POST"],
+    allow_headers=["*"],
 )
 
 service = AnalysisService()
