@@ -89,13 +89,6 @@ function render(data) {
   document.querySelector('#disclaimer').textContent =
       data.disclaimer;
 
-  const methodNames = {
-    keyword_baseline: 'Keyword matching',
-    hybrid_semantic_evidence: 'Hybrid ML matching',
-  };
-
-  document.querySelector('#method').textContent =
-      methodNames[data.method] || data.method;
 
   // Show results
   results.hidden = false;
