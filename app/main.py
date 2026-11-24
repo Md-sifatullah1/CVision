@@ -35,7 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-service = AnalysisService()
+
 
 
 # --------------------------------------------------
@@ -64,6 +64,11 @@ def get_hybrid_matcher() -> HybridMatcher:
     Load the ML model once and reuse it across requests.
     """
     return HybridMatcher(threshold=0.20)
+
+service = AnalysisService(
+    hybrid_matcher=get_hybrid_matcher(),
+    use_ml=True,
+)
 
 
 # --------------------------------------------------
