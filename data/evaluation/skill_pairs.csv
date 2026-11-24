@@ -1,0 +1,13 @@
+id,requirement,cv_evidence,label,category
+1,Experience developing REST APIs using Python,Built backend services with FastAPI and Python,1,semantic_match
+2,Experience with React frontend development,Created interactive user interfaces using React,1,exact_match
+3,Experience with relational databases,Designed PostgreSQL tables and wrote SQL queries,1,semantic_match
+4,Experience with automated testing,Developed unit tests using pytest,1,semantic_match
+5,Experience with containerization,Packaged applications into Docker containers,1,semantic_match
+6,Experience with version control using Git,Managed source code with Git and GitHub,1,exact_match
+7,Experience with Kubernetes deployment,Developed user interfaces using React,0,unrelated
+8,Experience with Python programming,Developed applications using Java,0,unrelated
+9,Experience with cloud infrastructure on AWS,Worked with local PostgreSQL databases,0,unrelated
+10,Experience with Docker containerization,Have not used Docker in professional or personal projects,0,negation
+11,Experience with production machine learning,Completed an introductory machine learning course,0,insufficient_evidence
+12,Experience with backend development,Designed static pages using HTML and CSS,0,unrelated
