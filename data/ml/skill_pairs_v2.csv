@@ -1,0 +1,51 @@
+id,requirement,cv_evidence,label,category,split
+1,Experience developing REST APIs with Python,Built REST endpoints using Python and FastAPI,1,semantic_match,train
+2,Experience with React development,Developed React components for a web application,1,exact_match,train
+3,Experience with relational databases,Designed PostgreSQL tables and SQL queries,1,semantic_match,train
+4,Experience with automated testing,Created automated unit tests using pytest,1,semantic_match,train
+5,Experience with Docker,Packaged backend services into Docker containers,1,exact_match,train
+6,Experience with Git version control,Managed application source code using Git,1,exact_match,train
+7,Experience with Kubernetes,Developed React user interfaces,0,unrelated,train
+8,Experience with Python programming,Developed desktop applications using Java,0,unrelated,train
+9,Experience with AWS infrastructure,Managed local SQLite databases,0,unrelated,train
+10,Experience with Docker,Have not used Docker in any project,0,negation,train
+11,Experience with production machine learning,Completed an introductory machine learning course,0,insufficient_evidence,train
+12,Experience with backend development,Designed static HTML pages,0,unrelated,train
+13,Experience with Java backend development,Built server-side services using Java and Spring Boot,1,semantic_match,train
+14,Experience with frontend frameworks,Developed interactive Angular applications,1,semantic_match,train
+15,Experience with continuous integration,Configured automated build pipelines using GitHub Actions,1,semantic_match,train
+16,Experience with cloud deployment,Deployed web services to AWS EC2,1,semantic_match,train
+17,Experience with SQL databases,Created relational tables and queries in MySQL,1,semantic_match,train
+18,Experience with API testing,Tested REST endpoints using Postman,1,semantic_match,train
+19,Experience with Java concurrency,Implemented multithreaded Java applications,1,semantic_match,train
+20,Experience with Python data processing,Processed datasets using Python and pandas,1,semantic_match,train
+21,Experience with Kubernetes,Used Docker Compose for local development,0,insufficient_evidence,train
+22,Experience with AWS cloud services,Deployed an application to a local server,0,unrelated,train
+23,Experience with React,Developed frontend applications using Vue,0,unrelated,train
+24,Experience with PostgreSQL,Worked exclusively with MongoDB,0,unrelated,train
+25,Experience with automated testing,Manually tested application interfaces,0,insufficient_evidence,train
+26,Experience with Python development,Have never programmed in Python,0,negation,train
+27,Experience with Docker,Read documentation about Docker,0,insufficient_evidence,train
+28,Experience with production APIs,Completed a tutorial on REST API development,0,insufficient_evidence,train
+29,Experience with CI/CD pipelines,Have not configured CI/CD pipelines,0,negation,train
+30,Experience with machine learning deployment,Studied theoretical machine learning concepts,0,insufficient_evidence,train
+31,Experience with REST API development,Implemented HTTP endpoints using FastAPI,1,semantic_match,val
+32,Experience with relational databases,Designed schemas and SQL queries in MariaDB,1,semantic_match,val
+33,Experience with automated testing,Wrote pytest tests for backend services,1,semantic_match,val
+34,Experience with containerization,Created Docker images for applications,1,semantic_match,val
+35,Experience with cloud infrastructure,Deployed backend services to AWS,1,semantic_match,val
+36,Experience with Kubernetes,Created CSS layouts for websites,0,unrelated,val
+37,Experience with Docker,Have no practical Docker experience,0,negation,val
+38,Experience with production machine learning,Attended an introductory AI workshop,0,insufficient_evidence,val
+39,Experience with Java backend development,Created JavaScript frontend components,0,unrelated,val
+40,Experience with CI/CD,Only learned CI/CD concepts in lectures,0,insufficient_evidence,val
+41,Experience with Python web APIs,Developed API endpoints with Python and Flask,1,semantic_match,test
+42,Experience with SQL databases,Designed normalized tables in PostgreSQL,1,semantic_match,test
+43,Experience with automated testing,Implemented automated tests using unittest,1,semantic_match,test
+44,Experience with containerization,Containerized a Python application using Docker,1,semantic_match,test
+45,Experience with continuous integration,Created automated pipelines in GitLab CI,1,semantic_match,test
+46,Experience with Kubernetes,Developed Java desktop applications,0,unrelated,test
+47,Experience with Docker,Have never worked with Docker containers,0,negation,test
+48,Experience with production machine learning,Completed a beginner course in machine learning,0,insufficient_evidence,test
+49,Experience with AWS infrastructure,Configured a local development environment,0,unrelated,test
+50,Experience with automated testing,Performed manual testing without automation,0,insufficient_evidence,test
