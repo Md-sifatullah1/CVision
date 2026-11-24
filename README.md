@@ -274,3 +274,84 @@ The goal is to develop an explainable, measurable matching system rather than re
 ## License
 
 No license has been selected for this repository yet.
+
+
+## CVision v2: Hybrid ML Skill Matching
+
+CVision analyzes CVs against job descriptions using a
+hybrid approach combining keyword extraction, semantic
+similarity, and rule-based evidence validation.
+
+### Features
+
+- PDF and DOCX CV parsing
+- Job description skill extraction
+- Hybrid ML skill matching
+- Missing requirement identification
+- CV-based interview questions
+- Suggested study topics
+- REST API with FastAPI
+- Browser-based frontend
+
+### ML Architecture
+
+1. KeywordMatcher identifies candidate skills.
+2. Sentence Transformers calculates semantic similarity.
+3. EvidenceValidator checks for explicit limitations.
+4. HybridMatcher combines similarity and validation.
+5. AnalysisService generates the final analysis.
+
+Embedding model: `all-MiniLM-L6-v2`
+
+The hybrid matcher uses a similarity threshold of `0.20`.
+
+### Evaluation
+
+On a 24-example synthetic challenge dataset:
+
+- Accuracy: 70.8%
+- Precision: 66.7%
+- Recall: 83.3%
+- F1 score: 0.741
+
+These metrics describe the evaluated hybrid pair matcher,
+not the complete CV analysis pipeline. The dataset is small
+and was designed to probe known weaknesses.
+
+### Limitations
+
+- Skill discovery depends on a predefined dictionary.
+- Semantic similarity does not establish proficiency.
+- Evidence validation can misinterpret complex statements.
+- Results should be reviewed manually.
+- No external database is required.
+
+### Running Locally
+
+Install dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Start the API:
+
+```bash
+python -m uvicorn app.main:app --reload
+```
+
+Start the frontend in another terminal:
+
+```bash
+python -m http.server 5500 --directory static
+```
+
+Open http://localhost:5500.
+
+### Testing
+
+```bash
+python -m pytest -q
+```

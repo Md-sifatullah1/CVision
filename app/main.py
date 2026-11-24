@@ -1,16 +1,27 @@
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from functools import lru_cache
+
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+)
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 from app.api.schemas import AnalysisResponse, AnalyzeTextRequest
 from app.core.parser import MAX_FILE_SIZE, parse_cv
+from app.ml.hybrid_matcher import HybridMatcher
 from app.services.analysis import AnalysisService
-from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(
     title="CVision API",
-    version="0.1.0",
-    description="Reusable CV and job-description analysis service",
+    version="0.2.0",
+    description="Reusable CV analysis and ML-powered skill matching service",
 )
 
 app.add_middleware(
@@ -24,21 +35,69 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-service = AnalysisService()
 
+
+
+# --------------------------------------------------
+# ML request and response schemas
+# --------------------------------------------------
+
+class MLMatchRequest(BaseModel):
+    requirement: str = Field(min_length=1)
+    cv_evidence: str = Field(min_length=1)
+
+
+class MLMatchResponse(BaseModel):
+    similarity: float
+    evidence_status: str
+    matched: bool
+    reason: str
+
+
+# --------------------------------------------------
+# ML model dependency
+# --------------------------------------------------
+
+@lru_cache(maxsize=1)
+def get_hybrid_matcher() -> HybridMatcher:
+    """
+    Load the ML model once and reuse it across requests.
+    """
+    return HybridMatcher(threshold=0.20)
+
+service = AnalysisService(
+    hybrid_matcher=get_hybrid_matcher(),
+    use_ml=True,
+)
+
+
+# --------------------------------------------------
+# Health endpoint
+# --------------------------------------------------
 
 @app.get("/api/v1/health")
 def health():
-    return {"status": "ok", "app": "CVision"}
+    return {
+        "status": "ok",
+        "app": "CVision",
+    }
 
 
-@app.post("/api/v1/analyze", response_model=AnalysisResponse)
+# --------------------------------------------------
+# Existing text analysis endpoint
+# --------------------------------------------------
+
+@app.post(
+    "/api/v1/analyze",
+    response_model=AnalysisResponse,
+)
 def analyze_text(payload: AnalyzeTextRequest):
     try:
         return service.analyze(
             payload.cv_text,
             payload.job_description,
         )
+
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
@@ -46,7 +105,14 @@ def analyze_text(payload: AnalyzeTextRequest):
         ) from exc
 
 
-@app.post("/api/v1/analyze-file", response_model=AnalysisResponse)
+# --------------------------------------------------
+# Existing CV file analysis endpoint
+# --------------------------------------------------
+
+@app.post(
+    "/api/v1/analyze-file",
+    response_model=AnalysisResponse,
+)
 async def analyze_file(
         cv: UploadFile = File(...),
         job_description: str = Form(...),
@@ -61,7 +127,10 @@ async def analyze_file(
         content = await cv.read(MAX_FILE_SIZE + 1)
         text = parse_cv(cv.filename, content)
 
-        return service.analyze(text, job_description)
+        return service.analyze(
+            text,
+            job_description,
+        )
 
     except ValueError as exc:
         raise HTTPException(
@@ -71,3 +140,40 @@ async def analyze_file(
 
     finally:
         await cv.close()
+
+
+# --------------------------------------------------
+# NEW: Hybrid ML matching endpoint
+# --------------------------------------------------
+
+@app.post(
+    "/api/v1/ml/match",
+    response_model=MLMatchResponse,
+)
+def match_cv_evidence(
+        request: MLMatchRequest,
+        matcher: HybridMatcher = Depends(get_hybrid_matcher),
+):
+    """
+    Match a job requirement against CV evidence
+    using semantic similarity and evidence validation.
+    """
+
+    try:
+        result = matcher.match(
+            request.requirement,
+            request.cv_evidence,
+        )
+
+        return MLMatchResponse(
+            similarity=round(result.similarity, 3),
+            evidence_status=result.evidence.status.value,
+            matched=bool(result.predicted_match),
+            reason=result.reason,
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc

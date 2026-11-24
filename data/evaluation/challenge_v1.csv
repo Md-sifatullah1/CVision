@@ -1,0 +1,25 @@
+id,requirement,cv_evidence,label,category
+1,Experience building REST APIs,Implemented HTTP endpoints with FastAPI,1,semantic_match
+2,Experience with relational databases,Designed normalized tables and SQL queries in MariaDB,1,semantic_match
+3,Experience with continuous integration,Configured automated builds using Jenkins,1,semantic_match
+4,Experience with container orchestration,Managed Kubernetes deployments and services,1,semantic_match
+5,Experience with React,Developed React components for a customer portal,1,exact_match
+6,Experience with Python,Developed Python scripts for data processing,1,exact_match
+7,Experience with Docker,Created Docker images for backend deployment,1,exact_match
+8,Experience with automated testing,Implemented automated unit tests using pytest,1,exact_match
+9,Experience with Docker,I have never used Docker in a professional project,0,negation
+10,Experience with Python,I do not have experience programming in Python,0,negation
+11,Experience with Kubernetes,I have no hands-on experience with Kubernetes,0,negation
+12,Experience with cloud deployment,I have not deployed applications to cloud platforms,0,negation
+13,Experience deploying machine learning models,Completed an introductory course on machine learning,0,insufficient_evidence
+14,Experience with CI/CD,Read documentation about CI/CD pipelines,0,insufficient_evidence
+15,Experience with production REST APIs,Followed a beginner tutorial on building REST APIs,0,insufficient_evidence
+16,Experience with Docker,Studied containerization concepts in university lectures,0,insufficient_evidence
+17,Experience with Docker,I have not used Kubernetes but I have built and deployed Docker images,1,mixed_evidence
+18,Experience with automated testing,I performed manual testing and also developed automated pytest tests,1,mixed_evidence
+19,Experience with Python,I have not worked with Java but developed Python backend services,1,mixed_evidence
+20,Experience with cloud deployment,I initially studied AWS concepts and later deployed applications to EC2,1,mixed_evidence
+21,Experience with Kubernetes,Developed responsive web pages using CSS,0,unrelated
+22,Experience with Python,Created desktop applications using Java Swing,0,unrelated
+23,Experience with PostgreSQL,Designed document collections using MongoDB,0,unrelated
+24,Experience with automated testing,Created user interface mockups in Figma,0,unrelated

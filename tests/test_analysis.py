@@ -3,6 +3,7 @@ import pytest
 
 from app.ml.matcher import Matcher
 from app.services.analysis import AnalysisService
+from unittest.mock import Mock
 
 
 def test_matching_and_missing():
@@ -107,3 +108,51 @@ def test_analysis_metadata():
 
     assert result["method"] == "keyword_baseline"
     assert "disclaimer" in result
+
+
+def test_hybrid_analysis_preserves_keyword_evidence():
+    original_evidence = (
+        "Designed SQL queries for a reporting application."
+    )
+
+    unrelated_sentence = (
+        "Supported incoming students and answered questions."
+    )
+
+    matcher = Mock()
+    matcher.match.return_value = (
+        [
+            {
+                "skill": "SQL",
+                "requirement": "Experience with SQL",
+                "cv_evidence": original_evidence,
+            }
+        ],
+        [],
+    )
+
+    hybrid_matcher = Mock()
+    hybrid_matcher.match.return_value.predicted_match = 1
+
+    service = AnalysisService(
+        matcher=matcher,
+        hybrid_matcher=hybrid_matcher,
+        use_ml=True,
+    )
+
+    result = service.analyze(
+        original_evidence + "\n" + unrelated_sentence,
+        "Experience with SQL",
+        )
+
+    assert len(result["matching_skills"]) == 1
+    assert (
+            result["matching_skills"][0]["cv_evidence"]
+            == original_evidence
+    )
+
+    hybrid_matcher.match.assert_called_once_with(
+        "Experience with SQL",
+        original_evidence,
+    )
+

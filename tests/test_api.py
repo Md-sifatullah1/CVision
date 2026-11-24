@@ -56,7 +56,7 @@ def test_text_endpoint():
 
     data = response.json()
 
-    assert data["method"] == "keyword_baseline"
+    assert data["method"] == "hybrid_semantic_evidence"
     assert "Python" in {
         item["skill"] for item in data["matching_skills"]
     }
