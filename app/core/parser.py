@@ -8,9 +8,9 @@ def parse_cv(filename: str, content: bytes) -> str:
         raise ValueError('CV must be nonempty and no larger than 5 MB.')
     suffix = filename.lower().rsplit('.', 1)[-1] if '.' in filename else ''
     if suffix == 'pdf':
-        import fitz
+        import pymupdf
         try:
-            with fitz.open(stream=content, filetype='pdf') as document:
+            with pymupdf.open(stream=content, filetype='pdf') as document:
                 text = '\n'.join(page.get_text() for page in document)
         except Exception as exc:
             raise ValueError('Could not read PDF. Check that it is valid and not password-protected.') from exc
