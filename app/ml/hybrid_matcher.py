@@ -6,7 +6,7 @@ from app.ml.evidence_validator import (
     EvidenceStatus,
     EvidenceValidator,
 )
-from app.ml.semantic_matcher import SemanticMatcher
+from app.ml.onnx_matcher import ONNXSemanticMatcher
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ class HybridMatcher:
     def __init__(
             self,
             threshold: float = 0.20,
-            semantic_matcher: SemanticMatcher | None = None,
+            semantic_matcher: ONNXSemanticMatcher | None = None,
             evidence_validator: EvidenceValidator | None = None,
     ):
         if not 0.0 <= threshold <= 1.0:
@@ -36,7 +36,7 @@ class HybridMatcher:
         self.semantic_matcher = (
             semantic_matcher
             if semantic_matcher is not None
-            else SemanticMatcher()
+            else ONNXSemanticMatcher()
         )
 
         self.evidence_validator = (

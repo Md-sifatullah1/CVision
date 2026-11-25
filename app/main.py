@@ -16,11 +16,14 @@ from app.api.schemas import AnalysisResponse, AnalyzeTextRequest
 from app.core.parser import MAX_FILE_SIZE, parse_cv
 from app.ml.hybrid_matcher import HybridMatcher
 from app.services.analysis import AnalysisService
+from pathlib import Path
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 
 app = FastAPI(
     title="CVision API",
-    version="0.2.0",
+    version="2.1.0",
     description="Reusable CV analysis and ML-powered skill matching service",
 )
 
@@ -65,10 +68,12 @@ def get_hybrid_matcher() -> HybridMatcher:
     """
     return HybridMatcher(threshold=0.20)
 
-service = AnalysisService(
-    hybrid_matcher=get_hybrid_matcher(),
-    use_ml=True,
-)
+@lru_cache(maxsize=1)
+def get_analysis_service() -> AnalysisService:
+    return AnalysisService(
+        hybrid_matcher=get_hybrid_matcher(),
+        use_ml=True,
+    )
 
 
 # --------------------------------------------------
@@ -93,7 +98,7 @@ def health():
 )
 def analyze_text(payload: AnalyzeTextRequest):
     try:
-        return service.analyze(
+        return get_analysis_service().analyze(
             payload.cv_text,
             payload.job_description,
         )
@@ -127,7 +132,7 @@ async def analyze_file(
         content = await cv.read(MAX_FILE_SIZE + 1)
         text = parse_cv(cv.filename, content)
 
-        return service.analyze(
+        return get_analysis_service().analyze(
             text,
             job_description,
         )
@@ -177,3 +182,18 @@ def match_cv_evidence(
             status_code=422,
             detail=str(exc),
         ) from exc
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+STATIC_DIR = BASE_DIR / "static"
+
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_DIR),
+    name="static",
+)
+
+
+@app.get("/", include_in_schema=False)
+def frontend():
+    return FileResponse(STATIC_DIR / "index.html")

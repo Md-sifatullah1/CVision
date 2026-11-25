@@ -1,5 +1,5 @@
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = '';
 
 const form = document.querySelector('#analysis-form');
 const statusEl = document.querySelector('#status');

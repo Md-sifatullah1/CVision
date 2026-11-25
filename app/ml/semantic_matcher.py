@@ -1,6 +1,7 @@
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
+import torch
 
 
 class SemanticMatcher:
@@ -17,6 +18,9 @@ class SemanticMatcher:
             )
 
         self.threshold = threshold
+
+        torch.set_num_threads(1)
+
         self.model = SentenceTransformer(model_name)
 
     def similarity(
