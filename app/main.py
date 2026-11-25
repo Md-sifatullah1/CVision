@@ -65,10 +65,12 @@ def get_hybrid_matcher() -> HybridMatcher:
     """
     return HybridMatcher(threshold=0.20)
 
-service = AnalysisService(
-    hybrid_matcher=get_hybrid_matcher(),
-    use_ml=True,
-)
+@lru_cache(maxsize=1)
+def get_analysis_service() -> AnalysisService:
+    return AnalysisService(
+        hybrid_matcher=get_hybrid_matcher(),
+        use_ml=True,
+    )
 
 
 # --------------------------------------------------
@@ -93,7 +95,7 @@ def health():
 )
 def analyze_text(payload: AnalyzeTextRequest):
     try:
-        return service.analyze(
+        return get_analysis_service().analyze(
             payload.cv_text,
             payload.job_description,
         )
@@ -127,7 +129,7 @@ async def analyze_file(
         content = await cv.read(MAX_FILE_SIZE + 1)
         text = parse_cv(cv.filename, content)
 
-        return service.analyze(
+        return get_analysis_service().analyze(
             text,
             job_description,
         )
