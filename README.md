@@ -1,25 +1,28 @@
 # CVision
 
-**CV Analysis and Interview Preparation Platform**
+**ML-Powered CV Analysis Platform**
 
-CVision is a Python-based application that compares a candidate's CV against a job description, identifies matching skills and requirements not evidenced in the CV, and generates interview preparation questions and suggested study topics.
+CVision is a Python-based application that analyzes a candidate's CV against a job description, identifies matching skills and requirements not evidenced in the CV, and generates personalized interview preparation questions and study recommendations.
 
-It provides a reusable FastAPI backend and a lightweight web interface built with HTML, CSS, and JavaScript.
+The application combines dictionary-based skill extraction, semantic similarity, and rule-based evidence validation through a reusable FastAPI backend and a lightweight web interface.
 
-**Version:** 1.0.0 (initial release candidate)
+**Version:** 2.1.0
 
-**Matching approach:** Dictionary-based keyword matching. This is an explainable rule-based baseline, not a trained machine learning model.
+**Live Demo:** https://cvision-orof.onrender.com
+
+> The application is hosted on Render's free tier. Initial requests may take longer due to server cold starts and model initialization.
 
 ## Features
 
-- **CV parsing:** Extract selectable text from PDF and DOCX documents.
-- **Skill extraction:** Detect technical skills using a configurable dictionary of skill names and aliases.
-- **Job matching:** Compare recognized job requirements against skills mentioned in the CV.
-- **Evidence extraction:** Show supporting text from the CV for matched skills.
-- **Gap identification:** Highlight job requirements that were not evidenced in the CV.
-- **Interview preparation:** Generate template-based interview questions from matching skills and identified gaps.
-- **Study recommendations:** Suggest topics based on requirements not found in the CV.
-- **REST API:** Expose analysis functionality for integration with other applications.
+- **CV parsing:** Extract text from PDF and DOCX documents.
+- **Skill extraction:** Identify technical skills using a configurable dictionary of skill names and aliases.
+- **Hybrid ML matching:** Combine keyword extraction, semantic similarity, and evidence validation.
+- **Evidence extraction:** Display supporting CV text for matched skills.
+- **Gap identification:** Identify job requirements not evidenced in the CV.
+- **Interview preparation:** Generate template-based questions from matching skills and identified gaps.
+- **Study recommendations:** Suggest relevant topics for further learning.
+- **REST API:** Provide reusable analysis endpoints for external applications.
+- **Optimized inference:** Run quantized transformer models through ONNX Runtime without requiring PyTorch in production.
 
 ## Technology Stack
 
@@ -27,14 +30,20 @@ It provides a reusable FastAPI backend and a lightweight web interface built wit
 |---|---|
 | Backend | Python, FastAPI |
 | Data validation | Pydantic |
+| Embedding model | all-MiniLM-L6-v2 |
+| Production ML inference | ONNX Runtime, INT8 quantization |
+| Tokenization | Hugging Face Tokenizers |
+| Numerical computation | NumPy |
+| Evidence validation | Rule-based NLP |
+| Experimental ML baselines | TF-IDF, scikit-learn, Sentence Transformers, PyTorch |
 | PDF parsing | PyMuPDF |
 | DOCX parsing | python-docx |
-| Matching engine | Python, regular expressions |
 | Frontend | HTML, CSS, JavaScript |
 | Testing | pytest, HTTPX |
+| Deployment | Render |
 | API documentation | OpenAPI / Swagger UI |
 
-No database, paid API, or external AI service is required.
+No database, paid AI API, or external inference service is required. Pretrained model files are downloaded from Hugging Face and inference runs within the application.
 
 ## Project Architecture
 
@@ -48,43 +57,157 @@ CVision/
 │   │   ├── parser.py
 │   │   └── skills.py
 │   ├── ml/
-│   │   └── matcher.py
+│   │   ├── matcher.py
+│   │   ├── hybrid_matcher.py
+│   │   ├── onnx_matcher.py
+│   │   ├── semantic_matcher.py
+│   │   ├── evidence_validator.py
+│   │   ├── tfidf_matcher.py
+│   │   ├── trained_tfidf.py
+│   │   ├── evaluation.py
+│   │   └── evaluate_challenge.py
 │   ├── services/
 │   │   └── analysis.py
 │   └── main.py
 ├── data/
-│   └── skills.json
+│   ├── skills.json
+│   └── evaluation/
+├── scripts/
 ├── static/
 │   ├── index.html
 │   ├── script.js
 │   └── style.css
 ├── tests/
-│   ├── test_parser.py
-│   ├── test_analysis.py
-│   └── test_api.py
 ├── requirements.txt
+├── requirements-deploy.txt
+├── render.yaml
 └── README.md
 ```
 
-### How CVision Works
+The architecture separates document processing, ML inference, business logic, and API endpoints, allowing individual components to be improved independently.
 
-1. A user uploads a PDF/DOCX CV and enters a job description.
-2. The frontend sends the information to FastAPI.
-3. The parser extracts text from the CV.
-4. The analysis service calls the matching engine.
-5. The matcher identifies supported skills and requirements not evidenced in the CV.
-6. The service generates interview questions and study recommendations.
-7. FastAPI returns structured JSON results to the frontend.
+## How CVision Works
 
-The matching engine is designed to be replaceable. Future implementations can use semantic similarity without requiring a complete redesign of the analysis service.
+```mermaid
+flowchart TD
+    A[CV and Job Description] --> B[FastAPI]
+    B --> C[CV Text Extraction]
+    C --> D[Analysis Service]
+    D --> E[Keyword Matching]
+    E --> F[Candidate Skills and CV Evidence]
+    F --> G[ONNX Semantic Similarity]
+    F --> H[Evidence Validation]
+    G --> I[Hybrid Matching Decision]
+    H --> I
+    I --> J[Matches and Missing Requirements]
+    J --> K[Interview Questions and Study Topics]
+    K --> L[Structured API Response]
+    L --> M[Web Interface]
+```
+
+## Machine Learning Architecture
+
+CVision follows a hybrid matching approach:
+
+1. `KeywordMatcher` identifies candidate skills and supporting CV evidence.
+2. `ONNXSemanticMatcher` calculates semantic similarity using pretrained transformer embeddings.
+3. `EvidenceValidator` checks for explicit negation, insufficient evidence, and other limitations.
+4. `HybridMatcher` combines semantic similarity and evidence validation.
+5. `AnalysisService` generates the final structured analysis.
+
+### Model Configuration
+
+| Parameter | Value |
+|---|---|
+| Pretrained model | sentence-transformers/all-MiniLM-L6-v2 |
+| Inference engine | ONNX Runtime |
+| Quantization | INT8 |
+| Execution provider | CPU |
+| Embedding pooling | Attention-mask-aware mean pooling |
+| Similarity metric | Cosine similarity |
+| Hybrid similarity threshold | 0.20 |
+| Maximum token length | 256 |
+| Model initialization | Lazy loading with caching |
+
+The production inference pipeline uses architecture-specific quantized ONNX models and does not require PyTorch or Sentence Transformers.
+
+## ML Development and Evaluation
+
+The matching engine was developed through several stages:
+
+1. Dictionary-based keyword matching.
+2. TF-IDF similarity baseline.
+3. Trained TF-IDF experimentation.
+4. Transformer-based semantic similarity.
+5. Hybrid semantic matching with evidence validation.
+6. Quantized ONNX inference optimization.
+
+Earlier implementations are retained for experimentation, benchmarking, and reproducibility.
+
+### Challenge Dataset Evaluation
+
+The hybrid pair matcher was evaluated on a synthetic dataset containing 24 labeled job requirement and CV evidence pairs.
+
+| Metric | PyTorch Hybrid | ONNX Hybrid |
+|---|---:|---:|
+| Accuracy | 70.8% | 66.7% |
+| Precision | 66.7% | 64.3% |
+| Recall | 83.3% | 75.0% |
+| F1-score | 0.741 | 0.692 |
+| Correct predictions | 17/24 | 16/24 |
+
+### ONNX Results by Category
+
+| Category | Correct Predictions |
+|---|---:|
+| Semantic matching | 3/4 |
+| Exact matching | 4/4 |
+| Negation | 3/4 |
+| Insufficient evidence | 2/4 |
+| Mixed evidence | 2/4 |
+| Unrelated evidence | 2/4 |
+| **Total** | **16/24** |
+
+These results evaluate the hybrid pair matcher rather than the complete CV analysis pipeline. The dataset is small, synthetic, and designed to expose known weaknesses. It does not establish real-world hiring accuracy.
+
+The ONNX evaluation was performed locally using the ARM64 quantized model. Production Linux inference has been functionally verified, but its full challenge dataset evaluation remains pending.
+
+## Inference Optimization
+
+The original transformer implementation required PyTorch and Sentence Transformers, resulting in relatively high memory consumption.
+
+CVision was optimized by replacing the production inference pipeline with ONNX Runtime and direct tokenization, pooling, and embedding normalization.
+
+### Local Memory Benchmark
+
+| Implementation | Peak Application Memory |
+|---|---:|
+| Original PyTorch implementation | 531.5 MiB |
+| Lightweight ONNX implementation | 150.5 MiB |
+| **Memory reduction** | **71.7%** |
+
+These measurements were obtained locally on macOS with Apple Silicon. Cloud memory consumption may differ.
+
+Additional optimizations include:
+
+- INT8 model quantization.
+- Lazy model initialization.
+- Cached model instances.
+- Limited inference thread counts.
+- Separate development and deployment dependencies.
+- Single-worker production configuration.
+- Unified frontend and backend hosting.
+
+The optimization enabled deployment on a resource-constrained free cloud hosting service, with a modest reduction in measured matching performance.
 
 ## Installation
 
 ### Requirements
 
-- Python 3.10 or newer
+- Python 3.13 recommended
 - Git
-- A modern web browser
+- Modern web browser
+- Internet access for the initial model download
 
 ### 1. Clone the repository
 
@@ -109,249 +232,10 @@ py -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-### 3. Install dependencies
+### 3. Install runtime dependencies
 
 ```bash
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-deploy.txt
 ```
 
-## Running CVision Locally
-
-CVision uses separate local servers for its backend and frontend.
-
-### Terminal 1: Start FastAPI
-
-From the project root:
-
-```bash
-python -m uvicorn app.main:app --reload --port 8000
-```
-
-Backend: http://localhost:8000
-
-Interactive API documentation: http://localhost:8000/docs
-
-### Terminal 2: Start the frontend
-
-Open another terminal from the project root:
-
-```bash
-python -m http.server 5500 --directory static
-```
-
-Open the application:
-
-**http://localhost:5500**
-
-Both servers must remain running while using the web interface.
-
-The frontend is configured to call the backend at `http://localhost:8000`. The backend permits the configured local development frontend origins through CORS.
-
-## REST API
-
-### Health check
-
-`GET /api/v1/health`
-
-Example response:
-
-```json
-{
-  "status": "ok",
-  "app": "CVision"
-}
-```
-
-### Analyze CV text
-
-`POST /api/v1/analyze`
-
-Example request:
-
-```json
-{
-  "cv_text": "Developed REST APIs using Python and Git.",
-  "job_description": "Experience with Python, Docker and Git required."
-}
-```
-
-Example curl command:
-
-```bash
-curl -X POST http://localhost:8000/api/v1/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"cv_text":"Developed REST APIs using Python and Git.","job_description":"Experience with Python, Docker and Git required."}'
-```
-
-The response includes:
-
-- `matching_skills`
-- `missing_requirements`
-- `interview_questions`
-- `study_topics`
-- `method`
-- `disclaimer`
-
-### Analyze an uploaded CV
-
-`POST /api/v1/analyze-file`
-
-Accepts multipart form data:
-
-| Field | Type | Description |
-|---|---|---|
-| `cv` | File | PDF or DOCX CV, maximum 5 MB |
-| `job_description` | String | Job description text |
-
-Example:
-
-```bash
-curl -X POST http://localhost:8000/api/v1/analyze-file \
-  -F "cv=@resume.pdf" \
-  -F "job_description=Experience with Python and Docker required."
-```
-
-Replace `resume.pdf` with the path to an existing PDF file.
-
-## Testing
-
-Run all automated tests:
-
-```bash
-python -m pytest -v
-```
-
-The initial release candidate has 30 passing automated tests covering CV parsing, analysis logic, API validation, and file uploads.
-
-## Reusable Backend
-
-CVision's analysis logic is independent of its web interface.
-
-Other Python applications can use the service directly:
-
-```python
-from app.services.analysis import AnalysisService
-
-service = AnalysisService()
-
-result = service.analyze(
-    cv_text="Developed Python applications.",
-    job_description="Python and Docker required."
-)
-
-print(result["matching_skills"])
-print(result["missing_requirements"])
-```
-
-External applications can integrate through the versioned REST API.
-
-## Known Limitations
-
-- Matching relies on predefined skills and aliases rather than semantic understanding.
-- Keyword matching may produce false positives, including negated experience.
-- A requirement not found in the CV does not necessarily mean the candidate lacks that skill.
-- Scanned or image-only PDFs are not supported because OCR is not implemented.
-- Interview questions are generated from templates rather than a language model.
-- Skill recognition is limited to the configured dictionary.
-- CVs are processed in memory and are not intentionally stored by the application.
-- The application is a local development prototype. Public deployment requires additional security, privacy, and operational safeguards, including appropriate authentication, rate limiting, HTTPS, and upload validation.
-
-## Future Development: Machine Learning
-
-The next development phase will focus on implementing and evaluating actual ML-based matching.
-
-Planned improvements:
-
-1. Create a labeled dataset of CV evidence and job requirement pairs.
-2. Establish a TF-IDF baseline and evaluate precision, recall, and F1.
-3. Introduce Sentence Transformers for semantic similarity.
-4. Compare semantic matching against the keyword baseline.
-5. Tune similarity thresholds and analyze false positives.
-6. Improve interview question generation using grounded evidence.
-
-The goal is to develop an explainable, measurable matching system rather than relying on an unverified AI score.
-
-## License
-
-No license has been selected for this repository yet.
-
-
-## CVision v2: Hybrid ML Skill Matching
-
-CVision analyzes CVs against job descriptions using a
-hybrid approach combining keyword extraction, semantic
-similarity, and rule-based evidence validation.
-
-### Features
-
-- PDF and DOCX CV parsing
-- Job description skill extraction
-- Hybrid ML skill matching
-- Missing requirement identification
-- CV-based interview questions
-- Suggested study topics
-- REST API with FastAPI
-- Browser-based frontend
-
-### ML Architecture
-
-1. KeywordMatcher identifies candidate skills.
-2. Sentence Transformers calculates semantic similarity.
-3. EvidenceValidator checks for explicit limitations.
-4. HybridMatcher combines similarity and validation.
-5. AnalysisService generates the final analysis.
-
-Embedding model: `all-MiniLM-L6-v2`
-
-The hybrid matcher uses a similarity threshold of `0.20`.
-
-### Evaluation
-
-On a 24-example synthetic challenge dataset:
-
-- Accuracy: 70.8%
-- Precision: 66.7%
-- Recall: 83.3%
-- F1 score: 0.741
-
-These metrics describe the evaluated hybrid pair matcher,
-not the complete CV analysis pipeline. The dataset is small
-and was designed to probe known weaknesses.
-
-### Limitations
-
-- Skill discovery depends on a predefined dictionary.
-- Semantic similarity does not establish proficiency.
-- Evidence validation can misinterpret complex statements.
-- Results should be reviewed manually.
-- No external database is required.
-
-### Running Locally
-
-Install dependencies:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Start the API:
-
-```bash
-python -m uvicorn app.main:app --reload
-```
-
-Start the frontend in another terminal:
-
-```bash
-python -m http.server 5500 --directory static
-```
-
-Open http://localhost:5500.
-
-### Testing
-
-```bash
-python -m pytest -q
-```
+For development, testing, and ML experimentation, install the development dependencies as

@@ -23,7 +23,7 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="CVision API",
-    version="0.2.0",
+    version="2.1.0",
     description="Reusable CV analysis and ML-powered skill matching service",
 )
 
