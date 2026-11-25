@@ -16,6 +16,9 @@ from app.api.schemas import AnalysisResponse, AnalyzeTextRequest
 from app.core.parser import MAX_FILE_SIZE, parse_cv
 from app.ml.hybrid_matcher import HybridMatcher
 from app.services.analysis import AnalysisService
+from pathlib import Path
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 
 app = FastAPI(
@@ -179,3 +182,18 @@ def match_cv_evidence(
             status_code=422,
             detail=str(exc),
         ) from exc
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+STATIC_DIR = BASE_DIR / "static"
+
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_DIR),
+    name="static",
+)
+
+
+@app.get("/", include_in_schema=False)
+def frontend():
+    return FileResponse(STATIC_DIR / "index.html")
